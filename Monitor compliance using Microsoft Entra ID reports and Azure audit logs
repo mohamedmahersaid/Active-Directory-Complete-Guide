@@ -1,0 +1,46 @@
+________________________________________
+🔍 Monitoring Compliance with Entra ID Reports & Azure Logs
+________________________________________
+
+📈 1. Microsoft Entra ID Reports
+You can access these from the Microsoft Entra admin center under Monitoring  Sign-ins or Monitoring  Audit logs.
+
+✅ Types of Reports
+Sign-in Logs
+
+Shows who signed in, from where, using which device.
+
+Includes risk level (low, medium, high) if Identity Protection is enabled.
+
+Audit Logs
+
+Tracks changes to users, groups, roles, and directory configurations.
+
+Useful for detecting unauthorized changes.
+
+Risky Sign-ins  Users
+
+Requires Azure AD Premium P2.
+
+Flags users with compromised credentials or abnormal behavior.
+
+________________________________________
+📊 2. Using Log Analytics  Sentinel for Advanced Compliance Monitoring
+________________________________________
+
+Integrate Entra ID logs with Azure Log Analytics for query-based analysis.
+
+Use Azure Sentinel for SIEM integration, alerting, and long-term retention.
+
+kusto
+Copy
+Edit
+AuditLogs 
+ where ActivityDisplayName == Add member to group 
+ where Result == success
+ project TimeGenerated, ActivityDisplayName, TargetResources, InitiatedBy
+
+📬 3. Alerts & Automation
+Configure Alerts for specific actions (e.g., global admin role assigned).
+
+Automate remediation via Logic Apps (e.g., notify or revoke session).
