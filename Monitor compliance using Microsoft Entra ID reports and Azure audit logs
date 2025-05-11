@@ -1,156 +1,84 @@
-________________________________________
-🔍 Monitoring Compliance with Entra ID Reports & Azure Logs
-________________________________________
 
-📈 1. Microsoft Entra ID Reports
-You can access these from the Microsoft Entra admin center under Monitoring  Sign-ins or Monitoring  Audit logs.
+# 🛡️ Monitor Compliance with Microsoft Entra ID & Azure Logs
 
-✅ Types of Reports
-Sign-in Logs
+## ✅ Step-by-Step: Monitor Compliance with Microsoft Entra ID
 
-Shows who signed in, from where, using which device.
+---
 
-Includes risk level (low, medium, high) if Identity Protection is enabled.
+## 📍 Part 1: Accessing and Reviewing Entra Reports
 
-Audit Logs
+### 🔹 Step 1: Sign in
+- Go to [https://entra.microsoft.com](https://entra.microsoft.com).
+- Sign in using a **Global Administrator** or **Security Reader** account.
 
-Tracks changes to users, groups, roles, and directory configurations.
+### 🔹 Step 2: Review Key Reports
+Navigate to `Monitoring > Sign-in logs` or `Monitoring > Audit logs`.
 
-Useful for detecting unauthorized changes.
+- **Sign-in Logs**: Check sign-in status, IP, device, location.
+- **Audit Logs**: View actions like user creation, group changes, and role assignments.
 
-Risky Sign-ins  Users
+---
 
-Requires Azure AD Premium P2.
+## 📍 Part 2: Enable Diagnostic Settings to Export Logs
 
-Flags users with compromised credentials or abnormal behavior.
+### 🔹 Step 1: Create Log Analytics Workspace
+1. Go to [https://portal.azure.com](https://portal.azure.com).
+2. Navigate to **Log Analytics Workspaces** > **+ Create**.
+3. Fill in subscription, resource group, name, and region.
 
-________________________________________
-📊 2. Using Log Analytics  Sentinel for Advanced Compliance Monitoring
-________________________________________
+### 🔹 Step 2: Configure Diagnostic Settings
+1. Go to `Microsoft Entra admin center > Monitoring > Diagnostic settings`.
+2. Click **+ Add diagnostic setting**.
+3. Name it: `ExportEntraLogs`.
+4. Select:
+   - **AuditLogs**
+   - **SignInLogs**
+   - *(Optional)* **RiskyUsers**, **RiskDetections**
+5. Choose **Send to Log Analytics workspace**.
+6. Select the target workspace and click **Save**.
 
-Integrate Entra ID logs with Azure Log Analytics for query-based analysis.
+---
 
-Use Azure Sentinel for SIEM integration, alerting, and long-term retention.
+## 📍 Part 3: Query Logs in Log Analytics
 
-kusto
-Copy
-Edit
-AuditLogs 
- where ActivityDisplayName == Add member to group 
- where Result == success
- project TimeGenerated, ActivityDisplayName, TargetResources, InitiatedBy
+### Sample KQL Queries:
 
-📬 3. Alerts & Automation
-Configure Alerts for specific actions (e.g., global admin role assigned).
-
-Automate remediation via Logic Apps (e.g., notify or revoke session).
-
-
-
-
-________________________________________
-Step-by-Step: Monitor Compliance with Microsoft Entra ID
-________________________________________
-📍 Part 1: Accessing and Reviewing Entra Reports
-🔹 Step 1: Sign in
-Go to https://entra.microsoft.com.
-
-Sign in using a Global Administrator or Security Reader account.
-
-🔹 Step 2: Review Key Reports
-Navigate to Monitoring > Sign-in logs or Monitoring > Audit logs.
-
-Sign-in Logs
-
-Check sign-in status, IP, device, location.
-
-Use filters for time range, user, or application.
-
-Audit Logs
-
-View actions like user creation, group changes, and role assignments.
-
-Filter by service, category, or activity.
-
-________________________________________
-📍 Part 2: Enable Diagnostic Settings to Export Logs
-________________________________________
-🔹 Step 1: Create Log Analytics Workspace
-Go to https://portal.azure.com.
-
-Navigate to Log Analytics Workspaces > + Create.
-
-Set:
-
-Subscription
-
-Resource Group
-
-Workspace Name
-
-Region
-
-🔹 Step 2: Configure Diagnostic Settings for Entra Logs
-In the Microsoft Entra admin center, go to:
-Monitoring > Diagnostic settings.
-
-Click + Add diagnostic setting.
-
-Name it: e.g., ExportEntraLogs.
-
-Check these options:
-
-AuditLogs
-
-SignInLogs
-
-(Optional) RiskyUsers, RiskDetections
-
-Choose Send to Log Analytics workspace.
-
-Select the workspace you just created.
-
-Click Save.
-________________________________________
-📍 Part 3: Query Logs in Log Analytics
-________________________________________
-Use KQL (Kusto Query Language) in the Logs section:
-
-
-// Example: List users added to privileged groups
+```kusto
+// Users added to privileged roles
 AuditLogs
 | where ActivityDisplayName == "Add member to role"
 | where TargetResources has "Global Administrator"
 | project TimeGenerated, InitiatedBy, TargetResources
+```
 
-// Example: Detect high-risk sign-ins
+```kusto
+// High-risk sign-ins
 SignInLogs
 | where RiskLevelAggregated == "high"
 | project UserPrincipalName, RiskDetail, Location, IPAddress, DeviceDetail
-📍 Part 4: Enable Alerts (Optional)
-Go to Azure Monitor > Alerts > + New alert rule.
+```
 
-Set:
+---
 
-Resource: your Log Analytics workspace
+## 📍 Part 4: Enable Alerts
 
-Condition: Custom log search (e.g., suspicious login)
+1. Go to **Azure Monitor** > **Alerts** > **+ New alert rule**.
+2. Choose:
+   - **Resource**: your Log Analytics workspace
+   - **Condition**: Custom log search (e.g., risky sign-ins)
+   - **Action Group**: Email, Teams, Logic App
+3. Save and enable the alert rule.
 
-Action Group: Email, Teams notification, Logic App
+---
 
-Name and enable it.
+## 📍 Part 5: Integrate with Microsoft Sentinel (Optional)
 
-📍 Part 5: (Optional) Integrate with Microsoft Sentinel
-Enable Microsoft Sentinel on your workspace.
+1. Enable **Microsoft Sentinel** on your workspace.
+2. Connect **Azure AD data connector**.
+3. Add **Analytics rules** (e.g., impossible travel).
+4. Use **Workbooks** for dashboards.
+5. Automate responses via **Playbooks**.
 
-In Sentinel:
+---
 
-Connect Azure AD connector
-
-Add Analytics Rules (e.g., impossible travel)
-
-Enable Workbooks and Dashboards
-
-Automate response via Playbooks
-
-
+**©️ Maintained as part of the Active Directory GitHub Documentation Repository.**
