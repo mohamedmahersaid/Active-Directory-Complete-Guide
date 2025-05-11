@@ -1,0 +1,65 @@
+________________________________________
+23️⃣ Privileged Access Management (PAM)
+________________________________________
+
+🧭 Overview
+PAM isolates privileged accounts and limits their scope, time of use, and exposure.
+
+🏗️ Implementation Steps
+1.	Deploy Microsoft Identity Manager (MIM) with PAM components.
+2.	Set up bastion forest with limited trust to the production domain.
+3.	Configure shadow principals, time-limited group membership, and access workflows.
+
+🔒 Key Features
+•	Just-In-Time (JIT) access
+•	Time-bound group membership
+•	Shadow security principals
+•	Workflow approvals
+
+🧠 Use New-PAMUser and Add-PAMUserToRole PowerShell cmdlets for automation.
+________________________________________
+🧊 24️⃣ Read-Only Domain Controllers (RODCs)
+________________________________________
+
+💡 Use Case
+•	Branch offices or locations with low physical security.
+
+🛠️ Deployment Steps
+1.	Add a new domain controller using Server Manager or PowerShell.
+2.	On the Deployment Configuration, select Read-only domain controller.
+3.	Set replication source domain controller.
+4.	Configure Password Replication Policy (PRP):
+o	Allow: Users/groups that can cache credentials.
+o	Deny: High-privilege accounts (Domain Admins).
+
+🔐 Security Advantages
+•	No write access to AD database.
+•	Mitigates risk in untrusted environments.
+•	Credential caching is selective and controlled.
+
+🔎 Use Get-ADDomainController -Filter * | Where-Object { $_.IsReadOnly } to list RODCs.
+________________________________________
+🧬 25️⃣ AD Schema Extension & Custom Attributes
+________________________________________
+
+📦 Extending the Schema
+Use ldifde to import new schema definitions:
+ldifde -i -f customattribute.ldf -k -j .
+Example LDIF snippet:
+dn: CN=Custom-Attribute,CN=Schema,CN=Configuration,DC=vlab,DC=local
+changetype: add
+adminDisplayName: CustomAttribute
+attributeID: 1.2.840.113556.1.8000.999999.1
+attributeSyntax: 2.5.5.12
+isSingleValued: TRUE
+objectClass: attributeSchema
+
+🔧 Use Cases
+•	Add employeeID, officeLocation, or customAccessLevel to user objects.
+
+🔍 PowerShell Management
+Set-ADUser -Identity john.doe -Add @{extensionAttribute15="Level3"}
+Get-ADUser -Filter * -Properties extensionAttribute15
+
+🧠 Always back up AD and test in a lab before applying schema changes.
+
