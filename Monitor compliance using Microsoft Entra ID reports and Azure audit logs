@@ -44,3 +44,113 @@ AuditLogs
 Configure Alerts for specific actions (e.g., global admin role assigned).
 
 Automate remediation via Logic Apps (e.g., notify or revoke session).
+
+
+
+
+________________________________________
+Step-by-Step: Monitor Compliance with Microsoft Entra ID
+________________________________________
+📍 Part 1: Accessing and Reviewing Entra Reports
+🔹 Step 1: Sign in
+Go to https://entra.microsoft.com.
+
+Sign in using a Global Administrator or Security Reader account.
+
+🔹 Step 2: Review Key Reports
+Navigate to Monitoring > Sign-in logs or Monitoring > Audit logs.
+
+Sign-in Logs
+
+Check sign-in status, IP, device, location.
+
+Use filters for time range, user, or application.
+
+Audit Logs
+
+View actions like user creation, group changes, and role assignments.
+
+Filter by service, category, or activity.
+
+________________________________________
+📍 Part 2: Enable Diagnostic Settings to Export Logs
+________________________________________
+🔹 Step 1: Create Log Analytics Workspace
+Go to https://portal.azure.com.
+
+Navigate to Log Analytics Workspaces > + Create.
+
+Set:
+
+Subscription
+
+Resource Group
+
+Workspace Name
+
+Region
+
+🔹 Step 2: Configure Diagnostic Settings for Entra Logs
+In the Microsoft Entra admin center, go to:
+Monitoring > Diagnostic settings.
+
+Click + Add diagnostic setting.
+
+Name it: e.g., ExportEntraLogs.
+
+Check these options:
+
+AuditLogs
+
+SignInLogs
+
+(Optional) RiskyUsers, RiskDetections
+
+Choose Send to Log Analytics workspace.
+
+Select the workspace you just created.
+
+Click Save.
+________________________________________
+📍 Part 3: Query Logs in Log Analytics
+________________________________________
+Use KQL (Kusto Query Language) in the Logs section:
+
+
+// Example: List users added to privileged groups
+AuditLogs
+| where ActivityDisplayName == "Add member to role"
+| where TargetResources has "Global Administrator"
+| project TimeGenerated, InitiatedBy, TargetResources
+
+// Example: Detect high-risk sign-ins
+SignInLogs
+| where RiskLevelAggregated == "high"
+| project UserPrincipalName, RiskDetail, Location, IPAddress, DeviceDetail
+📍 Part 4: Enable Alerts (Optional)
+Go to Azure Monitor > Alerts > + New alert rule.
+
+Set:
+
+Resource: your Log Analytics workspace
+
+Condition: Custom log search (e.g., suspicious login)
+
+Action Group: Email, Teams notification, Logic App
+
+Name and enable it.
+
+📍 Part 5: (Optional) Integrate with Microsoft Sentinel
+Enable Microsoft Sentinel on your workspace.
+
+In Sentinel:
+
+Connect Azure AD connector
+
+Add Analytics Rules (e.g., impossible travel)
+
+Enable Workbooks and Dashboards
+
+Automate response via Playbooks
+
+
