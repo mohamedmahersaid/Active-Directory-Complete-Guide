@@ -1,0 +1,69 @@
+________________________________________
+8 Group Policy Object (GPO) Configuration
+________________________________________
+
+🏛️ Create and Link a GPO
+New-GPO -Name "SecurityBaseline" -Comment "Hardening settings for all domain users"
+New-GPLink -Name "SecurityBaseline" -Target "OU=IT,DC=vlab,DC=local"
+
+🔐 Common Settings
+•	Enforce password complexity and length:
+o	Computer Configuration > Policies > Windows Settings > Security Settings > Account Policies > Password Policy
+•	Disable local admin access:
+o	Computer Configuration > Preferences > Control Panel Settings > Local Users and Groups
+
+🧹 Deploy Logon Banner
+User Configuration > Policies > Admin Templates > System > Logon > Display user message
+________________________________________
+9️⃣ Delegation of Control
+________________________________________
+🔧 Delegate OU Permissions
+
+1.	In Active Directory Users and Computers, right-click the OU (e.g., IT).
+2.	Select Delegate Control.
+3.	Choose the user/group to delegate.
+4.	Choose common tasks or custom task → allow permissions like:
+o	Reset user passwords
+o	Create/delete user accounts
+
+🛑 View Delegation
+Get-Acl "AD:\OU=IT,DC=vlab,DC=local" | Format-List
+________________________________________
+🔗 10️⃣ Domain & Forest Trusts
+________________________________________
+📍 Create Trusts
+
+Trusts require at least 2 domains/forests. Example: vlab.local & corp.local
+1.	Open Active Directory Domains and Trusts.
+2.	Right-click your domain → Properties → Trusts → New Trust.
+3.	Enter the name of the other domain.
+4.	Choose trust type:
+o	External Trust
+o	Forest Trust
+o	Shortcut Trust
+5.	Choose direction:
+o	One-way: Incoming or Outgoing
+o	Two-way
+
+🔄 Verify Trusts
+nltest /domain_trusts
+________________________________________
+⚙️ 11️⃣ Advanced Configurations
+________________________________________
+
+🧩 Fine-Grained Password Policies (FGPP)
+New-ADFineGrainedPasswordPolicy -Name "AdminsPolicy" \
+ -Precedence 1 -MinPasswordLength 12 -PasswordComplexityEnabled $true \
+ -LockoutThreshold 5 -LockoutDuration "00:30:00" \
+ -LockoutObservationWindow "00:30:00" -ReversibleEncryptionEnabled $false
+
+Add-ADFineGrainedPasswordPolicySubject -Identity "AdminsPolicy" -Subjects "CN=Domain Admins,CN=Users,DC=vlab,DC=local"
+🔄 Replication Schedule
+Set-ADReplicationSiteLink -Identity "DEFAULTIPSITELINK" -ReplicationFrequencyInMinutes 15
+💬 Add Company Info Banner (Legal Notice)
+Computer Configuration > Policies > Windows Settings > Security Settings > Local Policies > Security Options
+- Interactive logon: Message title
+- Interactive logon: Message text
+________________________________________
+✅ Advanced Active Directory Configuration completed. Next: cccccccccc?
+
